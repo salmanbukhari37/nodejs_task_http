@@ -2,11 +2,7 @@
 import * as http from "http";
 import * as https from "https";
 import { URL } from "url";
-
-export interface TitleResult {
-  address: string;
-  title: string;
-}
+import { TitleResult } from "./interfaces/TitleResult";
 
 export function fetchTitle(
   address: string,

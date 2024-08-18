@@ -19,28 +19,40 @@ const server = http.createServer((req, res) => {
   if (pathname === "/I/want/title") {
     const addresses = reqUrl.searchParams.getAll("address");
 
-    let results: TitleResult[] = [];
-    let completedRequests = 0;
+    if (addresses.length === 0) {
+      // No addresses provided
+      res.writeHead(400, { "Content-Type": "text/html" });
+      res.write("<html><head></head><body>");
+      res.write(`<h1>${ServerMessages.NO_ADDRESSES_PROVIDED}</h1>`); // Use the enum message
+      res.write(
+        "<p>Please provide at least one address in the query parameters.</p>"
+      );
+      res.write("</body></html>");
+      res.end();
+    } else {
+      let results: TitleResult[] = [];
+      let completedRequests = 0;
 
-    addresses.forEach((address) => {
-      fetchTitle(address, (err, result) => {
-        results.push(result!);
-        completedRequests++;
+      addresses.forEach((address) => {
+        fetchTitle(address, (err, result) => {
+          results.push(result!);
+          completedRequests++;
 
-        if (completedRequests === addresses.length) {
-          // When all requests are done, render the HTML response
-          res.writeHead(200, { "Content-Type": "text/html" });
-          res.write("<html><head></head><body>");
-          res.write(`<h1>${ServerMessages.FETCH_TITLES}</h1>`); // Use the enum message
-          res.write("<ul>");
-          results.forEach((result) => {
-            res.write(`<li>${result.address} - "${result.title}"</li>`);
-          });
-          res.write("</ul></body></html>");
-          res.end();
-        }
+          if (completedRequests === addresses.length) {
+            // When all requests are done, render the HTML response
+            res.writeHead(200, { "Content-Type": "text/html" });
+            res.write("<html><head></head><body>");
+            res.write(`<h1>${ServerMessages.FETCH_TITLES}</h1>`); // Use the enum message
+            res.write("<ul>");
+            results.forEach((result) => {
+              res.write(`<li>${result.address} - "${result.title}"</li>`);
+            });
+            res.write("</ul></body></html>");
+            res.end();
+          }
+        });
       });
-    });
+    }
   } else {
     // Return 404 for all other routes
     res.writeHead(404, { "Content-Type": "text/plain" });
